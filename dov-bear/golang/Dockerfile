@@ -11,6 +11,8 @@ RUN go build -o main main.go
 
 FROM alpine:3.16
 
+LABEL org.opencontainers.image.source=https://github.com/chukmunnlee/cfdsa-june06-2022
+
 WORKDIR /app
 
 COPY --from=builder /app/main main
