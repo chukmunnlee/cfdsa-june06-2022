@@ -1,0 +1,19 @@
+# create a network
+docker network create nw-net
+
+# create the volume
+docker volume create nw-vol
+
+# create the database container with the volume
+docker run -d \
+    --name nwdb --network nw-net \
+    -v nw-vol:/var/lib/mysql \
+    stackupiss/nortwind-db:v1
+
+# run the web app in the same network
+docker run -d -p 8080:3000 \
+    --name nwapp --network nw-net \
+    -e DB_HOST=nwdb \
+    -e DB_USER=root \
+    -e DB_PASSWORD=changeit \
+    stackupiss/northwind-app:v1 
