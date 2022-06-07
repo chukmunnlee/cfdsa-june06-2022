@@ -1,0 +1,6 @@
+{
+    "yaml.schemas": {
+        "kubernetes://schema/v1@pod": "file:///opt/tmp/cfdsa-june06-2022/day02/pod-bear.yaml",
+        "kubernetes://schema/apps/v1%40deployment": "file:///opt/tmp/cfdsa-june06-2022/day02/dov-bear.yaml"
+    }
+}
