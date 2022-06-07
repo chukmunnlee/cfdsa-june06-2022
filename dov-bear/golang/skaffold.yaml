@@ -1,0 +1,28 @@
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: dov-bear-skaffold 
+
+build:
+  artifacts:
+  - image: ghcr.io/chukmunnlee/dov-bear
+    context: .
+    platforms: [ "linux/amd64" ]
+    docker:
+      dockerfile: Dockerfile
+
+  tagPolicy:
+    gitCommit:
+
+deploy:
+  kubectl:
+    manifests:
+    - dov-bear.yaml
+    defaultNamespace: dovns
+
+portForward:
+- resourceType: Service
+  resourceName: dov-bear-svc
+  namespace: dovns
+  port: 8080
+  localPort: 8080

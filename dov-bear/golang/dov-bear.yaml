@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: dov-bear-container  
-        image: chukmunnlee/dov-bear:v2
+        image: ghcr.io/chukmunnlee/dov-bear@sha256:ebb8275212b73275012e5b2cce5ce7913ce33928b56bdb2ccd37616e7867cba2
         imagePullPolicy: IfNotPresent
         envFrom:
         - secretRef:
@@ -63,9 +63,9 @@ metadata:
   labels:
     name: dov-bear-svc
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     name: dov-bear-po
   ports:
-  - port: 80
+  - port: 8080
     targetPort: dov-port
