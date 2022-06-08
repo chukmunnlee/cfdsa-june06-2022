@@ -28,7 +28,7 @@ metadata:
   labels:
     name: dov-bear-deploy
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       name: dov-bear-po
@@ -71,5 +71,58 @@ spec:
   selector:
     name: dov-bear-po
   ports:
-  - port: 80
+  - port: 8080
     targetPort: dov-port
+
+---
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata:
+  name: dov-bear-ing
+  labels:
+    name: dov-bear-ing
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: dov-bear-svc 
+      port:
+        number: 8080
+  rules:
+  - host: dov-bear.137.184.251.97.nip.io 
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: dov-bear-svc
+            port: 
+              number: 8080
+--- 
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler 
+metadata:
+  name: dov-bear-hpa 
+  labels:
+    name: dov-bear-hpa 
+spec:
+  minReplicas: 1
+  maxReplicas: 4
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment 
+    name: dov-bear-deploy
+  metrics:
+  - type: Resource 
+    resource:
+      name: cpu 
+      target: 
+        type: Utilization
+        averageUtilization: 30
+  - type: Resource 
+    resource:
+      name: memory 
+      target: 
+        type: Utilization
+        averageUtilization: 30

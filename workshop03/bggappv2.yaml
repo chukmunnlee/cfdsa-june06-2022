@@ -1,0 +1,75 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bggappv2-deploy
+  labels:
+    name: bggappv2-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: bggappv2-po
+      version: v2
+  template:
+    metadata:
+      labels:
+        name: bggappv2-po
+        version: v2
+    spec:
+      containers:
+      - name: bggappv1-container
+        image: stackupiss/bgg-backend:v2
+        imagePullPolicy: IfNotPresent
+        args:
+        - --prefix
+        - /v2
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: bggapp-cm
+        - secretRef:
+            name: bggapp-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bggappv2-svc
+  labels:
+    name: bggappv2-svc
+spec:
+  type: ClusterIP
+  selector:
+    name: bggappv2-po
+    version: v2
+  ports:
+  - port: 3000
+    targetPort: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bggapp-ing
+  namespace: bgg
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: bgg.137.184.251.97.nip.io
+    http:
+      paths:
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: bggappv1-svc
+            port:
+              number: 3000
+      - path: /v2
+        pathType: Prefix
+        backend:
+          service:
+            name: bggappv2-svc
+            port:
+              number: 3000

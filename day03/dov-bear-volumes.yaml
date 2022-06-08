@@ -1,5 +1,39 @@
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim 
+metadata:
+  name: my-vol
+  labels:
+    name: my-vol
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: do-block-storage
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-cm
+data:
+  hosts: |
+    127.0.0.1       localhost
+    127.0.1.1       batcomputer
+
+    # The following lines are desirable for IPv6 capable hosts
+    ::1     ip6-localhost ip6-loopback
+    fe00::0 ip6-localnet
+    ff00::0 ip6-mcastprefix
+    ff02::1 ip6-allnodes
+    ff02::2 ip6-allrouters
+
+  readme.txt: Please read this file
+
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dov-bear-cm
@@ -39,10 +73,23 @@ spec:
         name: dov-bear-po
         dept: eng
     spec:
+      volumes:
+      - name: cm-vol
+        configMap:
+          name: my-cm
+      - name: my-pvc-vol
+        persistentVolumeClaim: 
+          claimName: my-vol
       containers:
       - name: dov-bear-container  
         image: chukmunnlee/dov-bear:v1
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: cm-vol 
+          mountPath: /opt/configmap
+          readOnly: true
+        - name: my-pvc-vol
+          mountPath: /opt/myvol
         envFrom:
         - secretRef:
             name: dov-bear-secret
@@ -54,10 +101,6 @@ spec:
             path: /healthz
             port: 3000
             scheme: HTTP
-        resources:
-          requests:
-            memory: 128Mi
-            cpu: 100m
 
 ---
 apiVersion: v1 

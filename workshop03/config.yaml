@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bggapp-cm
+  labels:
+    name: bggapp-cm
+data:
+  BGG_DB_USER: root
+  BGG_DB_HOST: bggdb-svc
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bggapp-secret
+  labels:
+    name: bggapp-secret
+type: Opaque
+data:
+  # echo -n changeit | baset64 -w0 -
+  BGG_DB_PASSWORD: Y2hhbmdlaXQ=
