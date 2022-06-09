@@ -38,6 +38,7 @@ spec:
       labels:
         name: dov-bear-po
         dept: eng
+        allow-ingress-traffic: "yes"
     spec:
       containers:
       - name: dov-bear-container  

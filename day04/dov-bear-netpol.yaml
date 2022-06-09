@@ -1,0 +1,68 @@
+--- 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata:
+  name: deny-all
+spec:
+  podSelector:
+    matchLabels:
+      name: dov-bear-po 
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata:
+  name: allow-all-from-same-namespace
+spec:
+  podSelector:
+    matchLabels:
+      name: dov-bear-po 
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector: 
+        matchLabels: 
+          allow-access: "yes"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata:
+  name: allow-dns
+spec:
+  podSelector:
+    matchLabels: 
+      allow-dns: "yes"
+  policyTypes:
+  - Egress
+  egress:
+  - ports:
+    - port: 53
+      protocol: TCP
+    - port: 53
+      protocol: UDP
+---
+apiVersion: networking.k8s.io/v1 
+kind: NetworkPolicy 
+metadata:
+  name: allow-traffic-from-ingress
+spec: 
+  podSelector: 
+    matchLabels:
+      allow-ingress-traffic: "yes"
+  policyTypes:
+  - Ingress 
+  ingress:
+  - from: 
+    - namespaceSelector: 
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+          name: ingress-nginx
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/component: controller
+          app.kubernetes.io/instance: ingress-nginx
+          app.kubernetes.io/name: ingress-nginx
