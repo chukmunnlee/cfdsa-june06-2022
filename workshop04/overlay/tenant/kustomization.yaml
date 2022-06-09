@@ -1,0 +1,67 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+
+namespace: acme
+
+namePrefix: acme-
+
+commonLabels:
+  tenant: acme
+
+generatorOptions:
+  labels:
+    tenant: acme
+
+configMapGenerator:
+- name: wpdb-cm 
+  behavior: create
+  literals:
+  - MYSQL_DATABASE=wordpress
+- name: wpapp-cm 
+  behavior: create
+  literals:
+  - WORDPRESS_DB_USER=root
+  - WORDPRESS_DB_NAME=wordpress
+
+secretGenerator:
+- name: wpdb-secret 
+  behavior: create
+  literals:
+  - MYSQL_ROOT_PASSWORD=rootroot
+- name: wpapp-secret 
+  behavior: create
+  literals:
+  - WORDPRESS_DB_PASSWORD=rootroot
+
+replacements:
+- source:
+    kind: Service 
+    name: wpdb-master-svc 
+    fieldPath: metadata.name
+  targets:
+  - select: 
+      kind: Deployment 
+      name: wpapp-deploy
+    fieldPaths:
+    - spec.template.spec.containers.[name=wpapp-container].env.[name=WORDPRESS_DB_HOST].value
+    options:
+      create: true
+- source: 
+    kind: Service
+    name: wpapp-svc
+    fieldPath: metadata.name
+    options:
+      delimiter: '-'
+      index: 0
+  targets:
+  - select:
+      kind: Ingress
+      name: wpapp-ing
+    fieldPaths: 
+    - spec.rules.0.host
+    options:
+      delimiter: '-'
+      index: 0
